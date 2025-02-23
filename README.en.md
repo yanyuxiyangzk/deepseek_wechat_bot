@@ -74,10 +74,10 @@ We welcome developers to contribute code to this project and jointly improve thi
 4. Create a Pull Request and describe your changes and features in detail.
 
 ## License
-This project is licensed under the [License Name]. For specific terms, please refer to the `LICENSE` file.
+This project is licensed under the [Apache-2.0 license]. For specific terms, please refer to the `LICENSE` file.
 
 ## Contact Us
 If you encounter any problems during use or have any suggestions or comments, please feel free to contact us through the following methods:
 
-- Email: [Your email address]
+- Email: [yohannzhang@qq.com]
 - Issue Feedback: [Link to the project's issue page]
