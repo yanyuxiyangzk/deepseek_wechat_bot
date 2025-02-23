@@ -1,36 +1,83 @@
 # deepseek_wechat_bot
 
-#### Description
-用deepseek实现的一个微信聊天机器人
+## Description
+A WeChat chatbot implemented based on OCR (Optical Character Recognition) and DeepSeek. This chatbot can automatically monitor the WeChat chat window, recognize new messages through OCR technology, and generate intelligent responses using the DeepSeek model.
 
-#### Software Architecture
-Software architecture description
+## Features
+- **Automated Message Processing**: Automatically monitors the WeChat chat window and processes new messages.
+- **OCR Recognition**: Utilizes the `easyocr` library to perform text recognition on screenshots of WeChat chats and extract chat content.
+- **DeepSeek Integration**: Integrates with the DeepSeek model to generate intelligent replies for smart chatting.
+- **Flexible Configuration**: Constants such as screenshot saving directories and WeChat window coordinates can be easily adjusted through the configuration file.
 
-#### Installation
+## Software Architecture
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+### Main Modules
+- **`Constants.py`**: Defines constants used in the project, such as screenshot saving directories and WeChat window coordinates.
+- **`app.py`**: The main application file of the project, containing functions such as message sending and contact loading.
+- **`deepseek/deepseekai.py`**: The module that interacts with the DeepSeek API, responsible for sending requests and handling responses.
+- **`capture/` Directory**: Contains code related to message capture, processing, and recognition.
 
-#### Instructions
+### Data Storage
+SQLite databases are used to store chat history and message data. The database files include `history.db` and `messages.db`.
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+### Workflow
+1. Monitor the WeChat chat window and automatically take screenshots of the message area when new messages arrive.
+2. Use OCR technology to recognize the text content in the screenshots.
+3. Send the recognized messages to the DeepSeek model to obtain intelligent replies.
+4. Send the reply content to the WeChat chat window.
 
-#### Contribution
+## Installation
 
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
+### Clone the Project
+```bash
+git clone <project repository address>
+cd deepseek_wechat_bot
+```
 
+### Install Dependencies
+This project is written in Python and requires the following dependencies:
+```bash
+pip install -r requirements.txt
+```
+The `requirements.txt` file contains all the Python libraries required by the project, such as `pyautogui`, `opencv-python`, `easyocr`, `openai`, etc.
 
-#### Gitee Feature
+### Configure Environment Variables
+Create a `.env` file in the root directory of the project and add the following content:
+```plaintext
+DEEPSEEK_API_KEY=your_api_key_here
+```
+Replace `your_api_key_here` with your actual DeepSeek API key.
 
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+## Usage
+
+### Start the Program
+```bash
+python app.py
+```
+
+### Configure the Monitoring List
+Add the names of the WeChat contacts you want to monitor to the `names.txt` file, with one name per line. For example:
+```plaintext
+peaceandlove
+white
+```
+
+### Run Monitoring
+After the program starts, it will automatically monitor the WeChat chat window. When new messages arrive, it will automatically process and reply to them.
+
+## Contribution Guide
+We welcome developers to contribute code to this project and jointly improve this WeChat chatbot. The specific steps are as follows:
+
+1. Fork the repository.
+2. Create a `Feat_xxx` branch, where `xxx` is the name of the feature you want to implement.
+3. Develop on the new branch and commit your code.
+4. Create a Pull Request and describe your changes and features in detail.
+
+## License
+This project is licensed under the [License Name]. For specific terms, please refer to the `LICENSE` file.
+
+## Contact Us
+If you encounter any problems during use or have any suggestions or comments, please feel free to contact us through the following methods:
+
+- Email: [Your email address]
+- Issue Feedback: [Link to the project's issue page]
