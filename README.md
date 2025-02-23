@@ -1,0 +1,2 @@
+# deepseek_wechat_bot
+基于ocr和deepseek实现的微信聊天机器人
