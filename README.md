@@ -31,7 +31,7 @@
 
 ### 克隆项目
 ```bash
-git clone <项目仓库地址>
+git clone https://github.com/zhangyanhui/deepseek_wechat_bot.git
 cd deepseek_wechat_bot
 ```
 

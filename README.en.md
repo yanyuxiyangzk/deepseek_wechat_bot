@@ -30,7 +30,7 @@ SQLite databases are used to store chat history and message data. The database f
 
 ### Clone the Project
 ```bash
-git clone <project repository address>
+git clone https://github.com/zhangyanhui/deepseek_wechat_bot.git
 cd deepseek_wechat_bot
 ```
 
