@@ -3,8 +3,6 @@ import os
 import time
 from pprint import pprint
 
-import cv2
-import numpy as np
 import pyautogui
 
 from Constants import Constants

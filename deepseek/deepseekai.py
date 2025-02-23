@@ -1,10 +1,10 @@
 import os
-
-from openai import OpenAI
 import re
 
-from db import db
 from dotenv import load_dotenv  # 需要先安装python-dotenv
+from openai import OpenAI
+
+from db import db
 
 # 在文件开头加载.env文件
 load_dotenv()

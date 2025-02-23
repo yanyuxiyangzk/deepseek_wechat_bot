@@ -8,10 +8,6 @@ import pyautogui
 from Constants import Constants
 
 
-
-
-
-
 def capture_messages_screenshot(save_dir=Constants.SCREENSHOTS_DIR,
                                 region=Constants.WECHAT_WINDOW,
                                 prefix=Constants.SCREENSHOT_PREFIX):

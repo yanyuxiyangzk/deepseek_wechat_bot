@@ -1,10 +1,9 @@
 # 在原有导入部分新增
 
 import time
-
 from pprint import pprint
-import pyautogui
 
+import pyautogui
 
 from capture.deal_chatbox import get_message_area_screenshot, get_chat_messages
 from capture.get_name_free import get_friend_name

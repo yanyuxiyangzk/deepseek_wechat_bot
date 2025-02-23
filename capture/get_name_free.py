@@ -1,9 +1,12 @@
 # 定义数据结构
+import os
+
+import cv2
+import easyocr
+
 from Constants import Constants
 from capture.monitor_new_message import recognize_message
-import easyocr
-import os
-import cv2
+
 
 def get_chat_name(image_path, screenshot_dir=Constants.CHATNAME_SCREENSHOT_DIR, crop_region=(55, 55+40, 320, 320+1000)):
     """
