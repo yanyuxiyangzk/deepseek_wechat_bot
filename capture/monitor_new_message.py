@@ -33,35 +33,43 @@ def capture_messages_screenshot(save_dir=Constants.SCREENSHOTS_DIR,
 
 
 def recognize_message(image_path):
-    """返回格式始终为 (x, y) 的元组"""
-    image = cv2.imread(image_path)  # 修正参数名称
-
+    """定位微信新消息红点坐标，返回(x, y)元组"""
+    # 闪电加载图像
+    image = cv2.imread(image_path)
     if image is None:
-        print(f"无法读取图像: {image_path}")
-        return (None, None)  # 保持返回结构
+        print(f"[预警] 图像加载失败: {image_path}")
+        return (None, None)
 
-    height, width, _ = image.shape
+    # 微信红点特征参数（BGR色彩空间）
+    TARGET_COLOR = np.array([88, 94, 231])  # 精确匹配微信消息提示红点
+    X_RANGE = (60, 320)  # 有效区域水平坐标范围
 
-    # 使用numpy向量化操作提升性能（快100倍以上）
+    # 生成坐标网格（性能优化关键！）
+    x_coords, y_coords = np.meshgrid(
+        np.arange(image.shape[1]),
+        np.arange(image.shape[0])
+    )
 
-    target_color = np.array([88, 94, 231])  # BGR格式
-    mask = np.all(image == target_color, axis=-1)
+    # 构建三维色彩矩阵（比逐像素遍历快100倍）
+    color_mask = np.all(image == TARGET_COLOR, axis=-1)
+    # 区域智能过滤（排除头像区域和侧边栏干扰）
+    region_mask = (x_coords >= X_RANGE[0]) & (x_coords <= X_RANGE[1])
 
-    # 查找所有匹配坐标
-    y_coords, x_coords = np.where(mask)
+    # 获取所有候选坐标（已自动过滤无效区域）
+    matched_points = np.column_stack((
+        x_coords[color_mask & region_mask],
+        y_coords[color_mask & region_mask]
+    ))
 
-    if len(x_coords) > 0 and len(y_coords) > 0:
-        # 取第一个符合要求的坐标，并筛选x范围
-        valid_indices = np.where((x_coords >= 60) & (x_coords <= 320))[0]
+    # 智能选择策略：优先取最下方的红点（最新消息）
+    if matched_points.size > 0:
+        # 按垂直坐标降序排序
+        sorted_points = matched_points[np.argsort(-matched_points[:, 1])]
+        # 返回首个有效坐标（精确到像素级）
+        return tuple(sorted_points[0].astype(int))
 
-        if len(valid_indices) > 0:
-            idx = valid_indices[0]
-            x, y = x_coords[idx], y_coords[idx]
-            # print(f"找到目标坐标: ({x}, {y})")
-            return (x, y)
-
-    print("未找到符合条件的坐标")
-    return (None, None)  # 保持返回结构一致性
+    print("[调试] 未检测到有效消息提示")
+    return (None, None)
 
 
 
