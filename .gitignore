@@ -169,3 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+/.idea/.gitignore
+/pic/chatname/cropped_wechat_20250223_041932.png
+/.idea/deepseek_wechat_bot.iml
+/pic/*
