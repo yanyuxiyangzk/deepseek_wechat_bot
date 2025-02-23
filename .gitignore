@@ -173,3 +173,7 @@ cython_debug/
 /pic/chatname/cropped_wechat_20250223_041932.png
 /.idea/deepseek_wechat_bot.iml
 /pic/*
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
