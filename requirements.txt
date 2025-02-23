@@ -1,0 +1,6 @@
+pyautogui
+np
+opencv-python
+easyocr
+openai
+dotenv
