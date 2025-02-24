@@ -28,6 +28,8 @@ def capture_messages_screenshot(save_dir=Constants.SCREENSHOTS_DIR,
 
     # 使用pyautogui截图
     screenshot = pyautogui.screenshot(region=region)
+    # screenshot = screenshot.resize((screenshot.width // 4, screenshot.height // 4))
+
     screenshot.save(save_path)
     return save_path
 

@@ -7,7 +7,8 @@ import easyocr
 from Constants import Constants
 from capture.monitor_new_message import recognize_message
 
-
+import easyocr
+OCR_READER = easyocr.Reader(['ch_sim', 'en'], gpu=True)  # 添加gpu=True参数启用GPU加速
 def get_chat_name(image_path, screenshot_dir=Constants.CHATNAME_SCREENSHOT_DIR, crop_region=(55, 55+40, 320, 320+1000)):
     """
     处理微信截图并执行OCR识别
@@ -31,8 +32,8 @@ def get_chat_name(image_path, screenshot_dir=Constants.CHATNAME_SCREENSHOT_DIR, 
     cropped_path = os.path.join(screenshot_dir, 'cropped_' + os.path.basename(image_path))
     cv2.imwrite(cropped_path, cropped_image)
 
-    reader = easyocr.Reader(['ch_sim', 'en'])
-    result = reader.readtext(cropped_image)
+    # reader = easyocr.Reader(['ch_sim', 'en'])
+    result = OCR_READER.readtext(cropped_image)
     if not result:
         print("OCR识别结果为空")
         return []

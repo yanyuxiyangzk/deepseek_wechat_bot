@@ -5,7 +5,16 @@ from dotenv import load_dotenv  # 需要先安装python-dotenv
 from openai import OpenAI
 
 from db import db
+import time
+from time import perf_counter  # 使用更高精度计时器
 
+# 在文件顶部添加性能统计字典
+perf_stats = {
+    'total': 0.0,
+    'api_call': 0.0,
+    'response_parse': 0.0,
+    'content_clean': 0.0
+}
 # 在文件开头加载.env文件
 load_dotenv()
 message_table = {}
@@ -35,21 +44,75 @@ def clean_response(content):
     content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
     return content.strip()
 
+
 def chat(user, prompt):
-    db.add_history(user, "user", prompt)
+    """带流式响应耗时分析的对话处理"""
+    total_start = perf_counter()
+    time_stats = {
+        'api_call': 0.0,
+        'stream_receive': 0.0,
+        'content_clean': 0.0,
+        'total': 0.0
+    }
+
     try:
+        # API调用耗时（包含首包响应时间）
+        api_start = perf_counter()
+        db.add_history(user, "user", prompt)
         response = client.chat.completions.create(
             model=my_model,
-            messages=db.get_history(user),
-            temperature=0.7,
-            top_p=0.9
+            messages=db.get_history(user)[-4:],
+            temperature=0.5,
+            top_p=0.7,
+            max_tokens=512,
+            stream=True
         )
-        # 解析响应保持原有逻辑
-        content = response.choices[0].message.content
-        content = clean_response(content)
-        print(content)
-        db.add_history(user, "assistant", content)
-        return content
+        time_stats['api_call'] = perf_counter() - api_start
+
+        # 流式接收耗时
+        stream_start = perf_counter()
+        content = ""
+        for chunk in response:
+            if chunk.choices[0].delta.content:
+                content += chunk.choices[0].delta.content
+        time_stats['stream_receive'] = perf_counter() - stream_start
+
+        # 内容清洗耗时
+        clean_start = perf_counter()
+        cleaned_content = clean_response(content)
+        time_stats['content_clean'] = perf_counter() - clean_start
+
+        # 总耗时计算
+        time_stats['total'] = perf_counter() - total_start
+
+        # 生成带毫秒的时间戳
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S") + f".{int(time.time() % 1 * 1000):03d}"
+
+        # 打印详细耗时报告
+        print(f"\n[API性能报告] {timestamp}")
+        print(f"| 阶段            | 耗时(ms)  | 占比   |")
+        print("|----------------|-----------|--------|")
+        print(
+            f"| API首包响应     | {time_stats['api_call'] * 1000:7.1f} | {time_stats['api_call'] / time_stats['total']:6.1%} |")
+        print(
+            f"| 流式接收        | {time_stats['stream_receive'] * 1000:7.1f} | {time_stats['stream_receive'] / time_stats['total']:6.1%} |")
+        print(
+            f"| 内容清洗        | {time_stats['content_clean'] * 1000:7.1f} | {time_stats['content_clean'] / time_stats['total']:6.1%} |")
+        print(f"| 总耗时          | {time_stats['total'] * 1000:7.1f} | {'100.0%':6} |")
+
+        db.add_history(user, "assistant", cleaned_content)
+        return cleaned_content
+
     except Exception as e:
-        print(f"DeepSeek API Error: {e}")  # 明确错误来源
-        return "服务暂时不可用，请稍后重试"
+        # 异常处理
+        time_stats['total'] = perf_counter() - total_start
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S") + f".{int(time.time() % 1 * 1000):03d}"
+
+        print(f"\n[API异常] {timestamp}")
+        print(f"错误类型: {type(e).__name__}")
+        print(f"已耗时: {time_stats.get('total', 0) * 1000:.1f}ms")
+        print(f"错误详情: {str(e)}")
+
+        return "服务响应超时，请稍后重试"
+
+

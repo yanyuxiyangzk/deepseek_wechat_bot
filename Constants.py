@@ -29,6 +29,7 @@ class Constants:
     ]
     # 微信窗口坐标 (左, 上, 宽, 高)
     WECHAT_WINDOW = (0, 0, 1479, 956)
+    WECHAT_FRIEND_WINDOW = (0, 0, 320, 956)
 
     # 消息区域裁剪参数
     CROP_REGION = (55, 55 + 40, 320, 320 + 1000)  # (y_start, y_end, x_start, x_end)
