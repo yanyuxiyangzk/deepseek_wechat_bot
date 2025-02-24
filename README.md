@@ -83,13 +83,13 @@ white
 
 - 邮箱：[yohannzhang@qq.com]
 - 公众号：[诗在盛唐]
-![img.png](img.png)
+![img.png](assets/images/img.png)
 - 小程序：[诗在盛唐]
-![img_2.png](img_2.png)
+![img_2.png](assets/images/img_2.png)
 - 小程序：[不用上班倒计时]
-![img_3.png](img_3.png)
+![img_3.png](assets/images/img_3.png)
 - 小程序：[模拟手机来电]
-![img_5.png](img_5.png)
+![img_5.png](assets/images/img_5.png)
 
 
 - 问题反馈：[项目的issue页面链接]
