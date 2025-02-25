@@ -2,11 +2,9 @@
 import os
 
 import cv2
-import easyocr
 
 from Constants import Constants
 from capture.monitor_new_message import recognize_message
-
 import easyocr
 OCR_READER = easyocr.Reader(['ch_sim', 'en'], gpu=True)  # 添加gpu=True参数启用GPU加速
 def get_chat_name(image_path, screenshot_dir=Constants.CHATNAME_SCREENSHOT_DIR, crop_region=(55, 55+40, 320, 320+1000)):
@@ -31,7 +29,7 @@ def get_chat_name(image_path, screenshot_dir=Constants.CHATNAME_SCREENSHOT_DIR, 
     os.makedirs(screenshot_dir, exist_ok=True)  # 确保截图目录存在
     cropped_path = os.path.join(screenshot_dir, 'cropped_' + os.path.basename(image_path))
     cv2.imwrite(cropped_path, cropped_image)
-
+    import easyocr
     # reader = easyocr.Reader(['ch_sim', 'en'])
     result = OCR_READER.readtext(cropped_image)
     if not result:
@@ -62,7 +60,7 @@ def get_friend_name(x,y,image_path):
                 # 使用示例
                 name = get_chat_name(
                     image_path,
-                    crop_region=(y, y + h, x, x + w)  # y_start=55, height=40, x_start=320, width=1000
+                    crop_region=(y, y+h , x, x + w)  # y_start=55, height=40, x_start=320, width=1000
                 )
                 return name
                 break
@@ -72,7 +70,7 @@ def get_friend_name(x,y,image_path):
 # ========== 主程序 ==========
 if __name__ == "__main__":
     # 给定的坐标
-    path = '/Users/yanhuizhang/PycharmProjects/deep-seek-wechat/screenshots/wechat_20250223_041932.png'
+    path = '../pic/screenshots/wechat_20250225_090215.png'
     x,y = recognize_message(path)
     name = get_friend_name(x,y,path)
     # print(name)
