@@ -7,6 +7,14 @@ import pyautogui
 
 from Constants import Constants
 
+import os
+import cv2
+import numpy as np
+from datetime import datetime
+import pyautogui
+
+from Constants import Constants
+
 
 def capture_messages_screenshot(save_dir=Constants.SCREENSHOTS_DIR,
                                 region=Constants.WECHAT_WINDOW,
@@ -28,23 +36,22 @@ def capture_messages_screenshot(save_dir=Constants.SCREENSHOTS_DIR,
 
     # 使用pyautogui截图
     screenshot = pyautogui.screenshot(region=region)
-    # screenshot = screenshot.resize((screenshot.width // 4, screenshot.height // 4))
-
     screenshot.save(save_path)
     return save_path
 
 
 def recognize_message(image_path):
     """定位微信新消息红点坐标，返回(x, y)元组"""
-    # 闪电加载图像
+    # 加载图像
     image = cv2.imread(image_path)
     if image is None:
         print(f"[预警] 图像加载失败: {image_path}")
         return (None, None)
 
     # 微信红点特征参数（BGR色彩空间）
-    TARGET_COLOR = np.array([88, 94, 231])  # 精确匹配微信消息提示红点
-    X_RANGE = (60, 320)  # 有效区域水平坐标范围
+    TARGET_COLOR = np.array([81, 81, 255])  # 精确匹配微信消息提示红点
+    COLOR_TOLERANCE = 10  # 颜色容差范围
+    X_RANGE = (66, 380)  # 有效区域水平坐标范围
 
     # 生成坐标网格（性能优化关键！）
     x_coords, y_coords = np.meshgrid(
@@ -53,7 +60,10 @@ def recognize_message(image_path):
     )
 
     # 构建三维色彩矩阵（比逐像素遍历快100倍）
-    color_mask = np.all(image == TARGET_COLOR, axis=-1)
+    lower_bound = TARGET_COLOR - COLOR_TOLERANCE
+    upper_bound = TARGET_COLOR + COLOR_TOLERANCE
+    color_mask = np.all((lower_bound <= image) & (image <= upper_bound), axis=-1)
+
     # 区域智能过滤（排除头像区域和侧边栏干扰）
     region_mask = (x_coords >= X_RANGE[0]) & (x_coords <= X_RANGE[1])
 
@@ -72,6 +82,7 @@ def recognize_message(image_path):
 
     print("[调试] 未检测到有效消息提示")
     return (None, None)
+
 
 
 
