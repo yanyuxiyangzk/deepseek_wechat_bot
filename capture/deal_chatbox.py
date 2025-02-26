@@ -162,6 +162,7 @@ def get_chat_messages(screenshot_path):
         # 图像加载耗时
         img_load_start = time.time()
         image = cv2.imread('./' + screenshot_path)
+
         time_stats['image_load'] = time.time() - img_load_start
 
         # 白色区域检测耗时
@@ -234,7 +235,9 @@ def get_chat_messages(screenshot_path):
 # ========== 主程序 ==========
 if __name__ == "__main__":
     total_start = time.time()
-    image_path = '../pic/message/message_20250224_203547.png'
+    image_path = '../pic/screenshots/wechat_20250224_224615.png'
+    image = cv2.imread(image_path)
+    print(image.shape )
     result = get_chat_messages(image_path)
     # y = recognize_green_bottom(image_path)
     pprint(result)

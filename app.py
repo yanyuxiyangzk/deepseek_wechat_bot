@@ -1,5 +1,6 @@
 # 在原有导入部分新增
 import os
+import random
 import time
 from pprint import pprint
 import pyautogui
@@ -119,6 +120,7 @@ def send_reply(text):
         if platform.system() == 'Darwin':
             print('masos')
             pyperclip.copy(text)
+            # pyautogui.typewrite(text, interval=0.1)  # 模拟打字
             pyautogui.hotkey('command', 'a')
             pyautogui.hotkey('command', 'v')
         elif platform.system() == 'Windows':
@@ -167,7 +169,10 @@ if __name__ == "__main__":
                 x, y = recognize_message(screenshot_path)
                 if x is not None and y is not None:
                     print(f"检测到新消息，点击位置: ({x}, {y}) 路径：" + screenshot_path)
+                    #
+                    pyautogui.moveTo(x, y, duration=random.uniform(0.2, 0.5))  # 随机移动速度
                     pyautogui.click(x, y)
+                    screenshot_path = capture_messages_screenshot()
                     name = get_friend_name(x, y, screenshot_path)
 
                     if name not in listen_list:
@@ -187,15 +192,15 @@ if __name__ == "__main__":
 
                                 # 模式判断逻辑
                                 if WORK_MODE == "chat":
-                                    reply = deepseekai.chat(name, latest_msg)
+                                    reply = deepseekai.reply(name, latest_msg)
                                 elif WORK_MODE == "forward":
                                     reply = f"{FORWARD_PREFIX}{latest_msg}"
                                     pyautogui.click(118, 117)
                                     send_image(screenshot_path)
-                                    send_reply('@')
+                                    send_reply(reply)
+                                    # send_reply('@')
                                     # time.sleep(0.1)
                                 # 发送和存储逻辑
-                                send_reply(reply)
                                 db.save_message(name, latest_msg, reply)
                                 print(f"已发送：{reply}")
                                 no_message_count = 0

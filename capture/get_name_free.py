@@ -2,6 +2,7 @@
 import os
 
 import cv2
+import pyautogui
 
 from Constants import Constants
 from capture.monitor_new_message import recognize_message
@@ -45,6 +46,58 @@ def get_chat_name(image_path, screenshot_dir=Constants.CHATNAME_SCREENSHOT_DIR, 
 def get_friend_name(x,y,image_path):
     # 添加空值检查
     if x is not None and y is not None:
+        # 通过搜索框来定位微信title那一栏的位置，用于解析title栏用户名
+        button_pos = pyautogui.locateOnScreen(
+            './sousuo.jpg',
+            confidence=0.7,  # 适当降低置信度
+            grayscale=True,  # 灰度匹配提升性能
+            region=(0, 0, 1500, 700)  # 限定搜索区域（顶部导航栏区域）
+        )
+
+        if button_pos:
+            # 转换Retina显示屏坐标
+            scaled_pos = convert_retina_coords(button_pos)
+            print(f"原始坐标：{button_pos} | 转换后：{scaled_pos}")
+            x = scaled_pos[0]
+            y = scaled_pos[1]
+            w = scaled_pos[2]
+            h = scaled_pos[3]
+            # 使用示例
+            name = get_chat_name(
+                image_path,
+                crop_region=(y, y + h, 320, 1000)  # y_start=55, height=40, x_start=320, width=1000
+            )
+            return name
+        # 遍历数据，判断坐标是否在某个区间内
+        # for item in Constants.chat_list_eage:
+        #     if item["upline"] <= y <= item["downline"]:
+        #         print(
+        #             f"坐标 ({x}, {y}) 在区间 [{item['upline']}, {item['downline']}] 和 [{item['leftline']}, {item['rightline']}] 内")
+        #         x = item['leftline']
+        #         y = item['upline']
+        #         w = item['rightline'] - item['leftline']
+        #         h = item['downline'] - item['upline']
+        #         crop_region = (x, y, w, h)
+        #         print(crop_region)
+        #         # 使用示例
+        #         name = get_chat_name(
+        #             image_path,
+        #             crop_region=(y, y+h , x, x + w)  # y_start=55, height=40, x_start=320, width=1000
+        #         )
+        #         return name
+        #         break
+        # else:
+        #     print(f"坐标 ({x}, {y}) 不在任何区间内")
+# 处理Retina显示屏坐标转换（关键步骤）
+def convert_retina_coords(pos):
+    screen_scale = pyautogui.screenshot().size[0] / pyautogui.size()[0]
+    return (int(pos.left / screen_scale),
+            int(pos.top / screen_scale),
+            int(pos.width / screen_scale),
+            int(pos.height / screen_scale))
+def get_friend_name_from_title(x,y,image_path):
+    # 添加空值检查
+    if x is not None and y is not None:
 
         # 遍历数据，判断坐标是否在某个区间内
         for item in Constants.chat_list_eage:
@@ -69,8 +122,13 @@ def get_friend_name(x,y,image_path):
 
 # ========== 主程序 ==========
 if __name__ == "__main__":
+
     # 给定的坐标
     path = '../pic/screenshots/wechat_20250225_090215.png'
     x,y = recognize_message(path)
+    image = cv2.imread(path)
+
+    height, width = image.shape[:2]
+    print(f"图像尺寸：{width} x {height}")
     name = get_friend_name(x,y,path)
     # print(name)

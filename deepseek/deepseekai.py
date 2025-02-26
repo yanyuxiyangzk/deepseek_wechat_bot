@@ -1,6 +1,9 @@
+import json
 import os
 import re
 
+import pyautogui
+import pyperclip
 from dotenv import load_dotenv  # 需要先安装python-dotenv
 from openai import OpenAI
 
@@ -44,8 +47,7 @@ def clean_response(content):
     content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
     return content.strip()
 
-
-def chat(user, prompt):
+def reply(user, msg):
     """带流式响应耗时分析的对话处理"""
     total_start = perf_counter()
     time_stats = {
@@ -58,14 +60,26 @@ def chat(user, prompt):
     try:
         # API调用耗时（包含首包响应时间）
         api_start = perf_counter()
-        db.add_history(user, "user", prompt)
+        db.add_history(user, "user", msg)
+        thisMsg = db.get_history(user)[-4:]
+        #thisMsg 转json 字符串(thisMsg)
+        json_msg = json.dumps(thisMsg, ensure_ascii=False)  # 保持中文可读性
+
+        print(json_msg)
+        print(thisMsg)
         response = client.chat.completions.create(
             model=my_model,
-            messages=db.get_history(user)[-4:],
+            messages=[
+                {"role": "system", "content": "用尽可能简短（只有几个字或一句话）来回复用户，如果看不懂则调侃用户。"},
+                {"role": "user", "content": json_msg}
+            ],
             temperature=0.5,
             top_p=0.7,
-            max_tokens=512,
-            stream=True
+            max_tokens=384,
+            stream=True,
+            stream_options={
+                "include_usage": False  # 减少返回元数据
+            }
         )
         time_stats['api_call'] = perf_counter() - api_start
 
@@ -75,7 +89,10 @@ def chat(user, prompt):
         for chunk in response:
             if chunk.choices[0].delta.content:
                 content += chunk.choices[0].delta.content
+                pyperclip.copy(chunk.choices[0].delta.content)
+                pyautogui.hotkey('command', 'v')
         time_stats['stream_receive'] = perf_counter() - stream_start
+        pyautogui.press('enter')
 
         # 内容清洗耗时
         clean_start = perf_counter()
@@ -114,5 +131,3 @@ def chat(user, prompt):
         print(f"错误详情: {str(e)}")
 
         return "服务响应超时，请稍后重试"
-
-
