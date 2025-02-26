@@ -6,6 +6,7 @@ import pyautogui
 import pyperclip
 from dotenv import load_dotenv  # 需要先安装python-dotenv
 from openai import OpenAI
+import platform
 
 from db import db
 import time
@@ -90,7 +91,17 @@ def reply(user, msg):
             if chunk.choices[0].delta.content:
                 content += chunk.choices[0].delta.content
                 pyperclip.copy(chunk.choices[0].delta.content)
-                pyautogui.hotkey('command', 'v')
+                # pyautogui.hotkey('command', 'v')
+                if platform.system() == 'Darwin':
+                    print('masos')
+                    pyperclip.copy(text)
+                    # pyautogui.typewrite(text, interval=0.1)  # 模拟打字
+                    pyautogui.hotkey('command', 'v')
+                elif platform.system() == 'Windows':
+                    print('windows')
+                    pyautogui.hotkey('ctrl', 'v')
+                else:
+                    raise Exception("Unsupported OS")
         time_stats['stream_receive'] = perf_counter() - stream_start
         pyautogui.press('enter')
 
