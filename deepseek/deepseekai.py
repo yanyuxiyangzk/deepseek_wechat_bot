@@ -25,7 +25,7 @@ message_table = {}
 my_model = 'deepseek-chat'  # 修改模型名称
 
 client = OpenAI(
-    base_url='https://api.deepseek.com/v1',  # 修改API地址
+    base_url='https://api.deepseek.com',  # 修改API地址
     api_key=os.getenv("DEEPSEEK_API_KEY")  # 替换为真实API密钥
 )
 
@@ -64,16 +64,15 @@ def reply(user, msg):
         db.add_history(user, "user", msg)
         thisMsg = db.get_history(user)[-4:]
         #thisMsg 转json 字符串(thisMsg)
-        json_msg = json.dumps(thisMsg, ensure_ascii=False)  # 保持中文可读性
+        # json_msg = json.dumps(thisMsg, ensure_ascii=False)  # 保持中文可读性
+        thisMsg.append({"role": "system", "content": "你现在和好友在微信聊天，好友发来的消息可能存在语法错误，请进行联想修复，用尽可能简短（只有几个字或一句话）来回复好友，要求尽可能模拟真实用户的语气回复，如果看不懂则调侃好友。"})
+        thisMsg.append({"role": "user", "content": msg})
 
-        print(json_msg)
-        print(thisMsg)
+        # print(json_msg)
+        # print(thisMsg)
         response = client.chat.completions.create(
             model=my_model,
-            messages=[
-                {"role": "system", "content": "用尽可能简短（只有几个字或一句话）来回复用户，如果看不懂则调侃用户。"},
-                {"role": "user", "content": json_msg}
-            ],
+            messages=thisMsg,
             temperature=0.5,
             top_p=0.7,
             max_tokens=384,
@@ -94,7 +93,7 @@ def reply(user, msg):
                 # pyautogui.hotkey('command', 'v')
                 if platform.system() == 'Darwin':
                     print('masos')
-                    pyperclip.copy(text)
+                    # pyperclip.copy(text)
                     # pyautogui.typewrite(text, interval=0.1)  # 模拟打字
                     pyautogui.hotkey('command', 'v')
                 elif platform.system() == 'Windows':

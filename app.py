@@ -6,7 +6,7 @@ from pprint import pprint
 import pyautogui
 from capture.deal_chatbox import get_message_area_screenshot, get_chat_messages
 from capture.get_name_free import get_friend_name
-from capture.monitor_new_message import capture_messages_screenshot, recognize_message
+from capture.monitor_new_message import capture_messages_screenshot, recognize_message,recognize_message_forwin
 from db import db
 from deepseek import deepseekai
 import platform
@@ -166,7 +166,10 @@ if __name__ == "__main__":
             screenshot_path = capture_messages_screenshot()
 
             try:
-                x, y = recognize_message(screenshot_path)
+                if platform.system() == 'Darwin':
+                    x, y = recognize_message(screenshot_path)
+                elif platform.system() == 'Windows':
+                    x, y = recognize_message_forwin(screenshot_path)
                 if x is not None and y is not None:
                     print(f"检测到新消息，点击位置: ({x}, {y}) 路径：" + screenshot_path)
                     #
@@ -177,19 +180,18 @@ if __name__ == "__main__":
 
                     if name not in listen_list:
                         print(f"{name}不在监听列表，跳过处理")
+                        pyautogui.moveTo(30, 50, duration=random.uniform(0.2, 0.5))  # 随机移动速度
+                        pyautogui.click(30, 50)
                         continue
-
                     no_message_count = 0
                     while True:
                         try:
                             screenshot_path = get_message_area_screenshot()
                             final_result = get_chat_messages(screenshot_path)
                             pprint(final_result)
-
                             if final_result['white']:
                                 latest_msg = final_result['white'][-1]
                                 print(f'来自 {name} 的消息：{latest_msg}')
-
                                 # 模式判断逻辑
                                 if WORK_MODE == "chat":
                                     reply = deepseekai.reply(name, latest_msg)
@@ -198,8 +200,6 @@ if __name__ == "__main__":
                                     pyautogui.click(118, 117)
                                     send_image(screenshot_path)
                                     send_reply(reply)
-                                    # send_reply('@')
-                                    # time.sleep(0.1)
                                 # 发送和存储逻辑
                                 db.save_message(name, latest_msg, reply)
                                 print(f"已发送：{reply}")
@@ -210,9 +210,9 @@ if __name__ == "__main__":
 
                             if no_message_count >= 5:
                                 print("连续5次空消息，退出对话")
-                                pyautogui.click(100, 100)
+                                pyautogui.click(30, 50)
                                 break
-                            time.sleep(1)
+                            time.sleep(5)
                         except Exception as e:
                             print(f"消息处理异常：{str(e)}")
                             break
