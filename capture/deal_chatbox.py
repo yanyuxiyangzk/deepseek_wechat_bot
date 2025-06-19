@@ -12,8 +12,8 @@ WECHAT_WINDOW = Constants.WECHAT_WINDOW
 #import easyocr
 #OCR_READER = easyocr.Reader(['ch_sim', 'en'], gpu=True)  # 添加gpu=True参数启用GPU加速
 from rapidocr_onnxruntime import RapidOCR
-engine = RapidOCR()
-
+#engine = RapidOCR()
+RapidOCR(use_angle_cls=True, lang="ch")
 def extract_text_by_color_flow(image,target_color , tolerance=1):
     """
     修改说明：
