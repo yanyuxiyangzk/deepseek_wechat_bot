@@ -9,9 +9,10 @@ from Constants import Constants
 
 # 电脑版微信全屏状态的窗口区域
 WECHAT_WINDOW = Constants.WECHAT_WINDOW
-import easyocr
-OCR_READER = easyocr.Reader(['ch_sim', 'en'], gpu=True)  # 添加gpu=True参数启用GPU加速
-
+#import easyocr
+#OCR_READER = easyocr.Reader(['ch_sim', 'en'], gpu=True)  # 添加gpu=True参数启用GPU加速
+from rapidocr_onnxruntime import RapidOCR
+engine = RapidOCR()
 
 def extract_text_by_color_flow(image,target_color , tolerance=1):
     """
@@ -193,7 +194,8 @@ def get_chat_messages(screenshot_path):
         # OCR_READER = easyocr.Reader(['ch_sim', 'en'])  # 注：初始化建议移到函数外
         processed_img = preprocess_for_ocr(image)
 
-        words_result = OCR_READER.readtext(processed_img)
+        #words_result = OCR_READER.readtext(processed_img)
+        words_result, elapse = engine(processed_img)
         time_stats['ocr_process'] = time.time() - ocr_start
 
         # 文本过滤耗时
